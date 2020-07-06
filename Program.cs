@@ -11,7 +11,7 @@ namespace stringParse
             string func = "x^((4-3)*(x+25))+6*x^3";
             List<string> Sub= new List<string>();
             string[] vars = new string[26] { "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z" };
-            string Temp = func;
+            string Temp = func, temp1;
             int open = Temp.IndexOf('('), close = 0;
             do
             {
@@ -21,13 +21,17 @@ namespace stringParse
                     if (Temp[i] == '(')
                     {
                         open = i;
-                        break;
+                        continue;
                     }
                     else if (Temp[i] == ')')
                     {
                         close = i;
-                        Sub.Add(Temp.Substring(open, close - open));
-                        break;
+                        temp1 = Temp.Substring(i, Temp.Length - i);
+                        Sub.Add(Temp.Substring(open+1, close - open-1));
+                        Temp = temp1;
+                        open = Temp.IndexOf('(');
+                        i = 0;
+                        continue;
                     }
                 }
             }
