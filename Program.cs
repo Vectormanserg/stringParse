@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
 using System.Threading.Channels;
 
 namespace stringParse
@@ -8,35 +10,60 @@ namespace stringParse
     {
         static void Main(string[] args)
         {
-            string func = "x^((4-3)*(x+25))+6*x^3";
-            List<string> Sub= new List<string>();
-            string[] vars = new string[26] { "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z" };
-            string Temp = func, temp1;
-            int open = Temp.IndexOf('('), close = 0;
-            do
+            Parse();
+        }
+        static void Parse()
+        {
+            string func = "2-x*x";
+            char[] math = func.ToCharArray();
+            string TempStr = "", Oper = "";
+            char[] MathFunc = new char[5] { '+', '-', '*', '/', '^' };
+            List<string> Difs = new List<string>();
+            for (int i = 0; i < math.Length; i++)
             {
-                for (int i = open + 1; i < Temp.Length; i++)
+                int n = 0;
+                for (int j = 0; j < MathFunc.Length; j++)
                 {
-
-                    if (Temp[i] == '(')
+                    if (math[i] != MathFunc[j])
                     {
-                        open = i;
-                        continue;
+                        n += 0;
                     }
-                    else if (Temp[i] == ')')
+                    else
                     {
-                        close = i;
-                        temp1 = Temp.Substring(i, Temp.Length - i);
-                        Sub.Add(Temp.Substring(open+1, close - open-1));
-                        Temp = temp1;
-                        open = Temp.IndexOf('(');
-                        i = 0;
-                        continue;
+                        n += 1;
+                        Oper = MathFunc[j].ToString();
+                        break;
                     }
                 }
+                if (n == 0)
+                // Записываем число, пока не наткнемся на матем. оператор
+                {
+                    TempStr += math[i];
+                }
+                else
+                // Наткнулись на матем. оператор, записанное ранее число заносим в список
+                {
+                    Difs.Add(TempStr);
+                    Difs.Add(Oper);
+                    // Обнуляем временное хранилище числа
+                    TempStr = "";
+                }
+                // Занесение последнего числа из формулы в список
+                if (i == math.Length - 1 && TempStr != "")
+                {
+                    Difs.Add(TempStr);
+                }
             }
-            while (Temp.Contains('('));
-            Console.WriteLine(Sub[0]);
+            foreach (string x in Difs)
+            {
+                Console.WriteLine(x);
+            }
+        }
+        static double Calculate()
+        {
+            double result;
+            result = 1.25;
+            return result;
         }
     }
 }
