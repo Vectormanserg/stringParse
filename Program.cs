@@ -10,14 +10,45 @@ namespace stringParse
     {
         static void Main(string[] args)
         {
-            Calculate(Parse());
+            string func = "x^(2+(8*2)-(4^2))";
+            Calculate(Parse(func));
         }
-        static string[] Parse()
+        static string Brackets(string func)
+            // Если есть скобки
         {
-            string func = "2-x^2+25*7-5^2";
-            char[] math = func.ToCharArray();
+            int open = 0, close = 0, count=0;
+            string Temp, Temp2, Temp3, AfterCalc;
+            do
+            {
+                open = func.LastIndexOf("(");
+                for (int q = open; q < func.Length; q++)
+                {
+                    if (func[q] == ')')
+                    {
+                        close = q;
+                        break;
+                    }
+                }
+                Temp = func.Substring(open, close - open);
+                Temp2 = Temp.Trim('(', ')');
+                func = Parse(func);
+            }
+            while (func.Contains("("));
+            return func;
+        }
+        static string[] Parse(string func)
+        {
+            if (func.Contains('('))
+            {
+                func = Brackets(func);
+            }
+            string[] math = new string[func.Length];
+            for (int c = 0; c < func.Length; c++)
+            {
+                math[c] = func[c].ToString();
+            }
             string TempStr = "", Oper = "";
-            char[] MathFunc = new char[5] { '+', '-', '*', '/', '^' };
+            string[] MathFunc = new string[17] { "+", "-", "*", "/", "^", "sin", "cos", "tg", "ctg", "arcsin", "arccos", "arctg", "arcctg", "log", "lg", "ln", "exp"};
             List<string> Difs = new List<string>();
             for (int i = 0; i < math.Length; i++)
             {
@@ -31,7 +62,7 @@ namespace stringParse
                     else
                     {
                         n += 1;
-                        Oper = MathFunc[j].ToString();
+                        Oper = MathFunc[j];
                         break;
                     }
                 }
@@ -68,13 +99,13 @@ namespace stringParse
             double temp;
             string tempstr1, tempstr2;
             List<string> Inserted = new List<string>();
-            for (int n = 0; n<args.Length; n++)
+            foreach (string q in args)
             {
-                if (args[n] == "x")
+                if (q == "x")
                 {
                     Inserted.Add(x.ToString());
                 }
-                else Inserted.Add(args[n]);
+                else Inserted.Add(q);
             }
 
             do
