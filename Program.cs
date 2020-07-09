@@ -6,18 +6,25 @@ using System.Threading.Channels;
 
 namespace stringParse
 {
-    class Program
+    class StringParse
     {
         static void Main(string[] args)
         {
-            string func = "x^(2+(8*2)-(4^2))";
-            Calculate(Parse(func));
+            string func = "3*x^2+8*5-2*x^2";
+            double result;
+            if (func.Contains("(") || func.Contains(")"))
+            {
+                result = Brackets(func);
+            }
+            else result = Calculate(StringToArr(func));
+            Console.WriteLine(result.ToString());
         }
-        static string Brackets(string func)
-            // Если есть скобки
+        static double Brackets(string func)
+        // Если есть скобки
         {
-            int open = 0, close = 0, count=0;
-            string Temp, Temp2, Temp3, AfterCalc;
+            int open = 0, close = 0;
+            string Temp, Temp2;
+            double Temp3;
             do
             {
                 open = func.LastIndexOf("(");
@@ -29,18 +36,19 @@ namespace stringParse
                         break;
                     }
                 }
-                Temp = func.Substring(open, close - open);
+                Temp = func.Substring(open, close - open+1);
                 Temp2 = Temp.Trim('(', ')');
-                func = Parse(func);
+                Temp3 = Calculate(StringToArr(Temp2));
+                func = func.Replace(Temp, Temp3.ToString());
             }
             while (func.Contains("("));
-            return func;
+            return Calculate(StringToArr(func));
         }
-        static string[] Parse(string func)
+        static string[] StringToArr(string func)
         {
             if (func.Contains('('))
             {
-                func = Brackets(func);
+                func = Brackets(func).ToString();
             }
             string[] math = new string[func.Length];
             for (int c = 0; c < func.Length; c++)
@@ -48,7 +56,7 @@ namespace stringParse
                 math[c] = func[c].ToString();
             }
             string TempStr = "", Oper = "";
-            string[] MathFunc = new string[17] { "+", "-", "*", "/", "^", "sin", "cos", "tg", "ctg", "arcsin", "arccos", "arctg", "arcctg", "log", "lg", "ln", "exp"};
+            string[] MathFunc = new string[17] { "+", "-", "*", "/", "^", "sin", "cos", "tg", "ctg", "arcsin", "arccos", "arctg", "arcctg", "log", "lg", "ln", "exp" };
             List<string> Difs = new List<string>();
             for (int i = 0; i < math.Length; i++)
             {
@@ -86,7 +94,7 @@ namespace stringParse
                 }
             }
             string[] args = new string[Difs.Count];
-            for (int i = 0; i< Difs.Count; i++)
+            for (int i = 0; i < Difs.Count; i++)
             {
                 args[i] = Difs[i];
             }
@@ -97,7 +105,6 @@ namespace stringParse
             double x = 3;
             double result;
             double temp;
-            string tempstr1, tempstr2;
             List<string> Inserted = new List<string>();
             foreach (string q in args)
             {
@@ -107,16 +114,13 @@ namespace stringParse
                 }
                 else Inserted.Add(q);
             }
-
             do
             {
                 int i;
                 if (Inserted.Contains("^"))
                 {
                     i = Inserted.IndexOf("^");
-                    tempstr1 = Inserted[i - 1];
-                    tempstr2 = Inserted[i + 1];
-                    temp = Math.Pow(double.Parse(tempstr1), double.Parse(tempstr2));
+                    temp = MathOps.Power(i, Inserted);
                     ListMod(i, Inserted, temp);
                 }
                 else if (Inserted.Contains("*") && Inserted.Contains("/"))
@@ -124,34 +128,26 @@ namespace stringParse
                     if (Inserted.IndexOf("*") < Inserted.IndexOf("/"))
                     {
                         i = Inserted.IndexOf("*");
-                        tempstr1 = Inserted[i - 1];
-                        tempstr2 = Inserted[i + 1];
-                        temp = double.Parse(tempstr1) * double.Parse(tempstr2);
+                        temp = MathOps.Multiply(i, Inserted);
                         ListMod(i, Inserted, temp);
                     }
                     else
                     {
                         i = Inserted.IndexOf("/");
-                        tempstr1 = Inserted[i - 1];
-                        tempstr2 = Inserted[i + 1];
-                        temp = double.Parse(tempstr1) / double.Parse(tempstr2);
+                        temp = MathOps.Divide(i, Inserted);
                         ListMod(i, Inserted, temp);
                     }
                 }
                 else if (Inserted.Contains("*"))
                 {
                     i = Inserted.IndexOf("*");
-                    tempstr1 = Inserted[i - 1];
-                    tempstr2 = Inserted[i + 1];
-                    temp = double.Parse(tempstr1) * double.Parse(tempstr2);
+                    temp = MathOps.Multiply(i, Inserted);
                     ListMod(i, Inserted, temp);
                 }
                 else if (Inserted.Contains("/"))
                 {
                     i = Inserted.IndexOf("/");
-                    tempstr1 = Inserted[i - 1];
-                    tempstr2 = Inserted[i + 1];
-                    temp = double.Parse(tempstr1) / double.Parse(tempstr2);
+                    temp = MathOps.Divide(i, Inserted);
                     ListMod(i, Inserted, temp);
                 }
                 else if (Inserted.Contains("+") && Inserted.Contains("-"))
@@ -159,40 +155,31 @@ namespace stringParse
                     if (Inserted.IndexOf("+") < Inserted.IndexOf("-"))
                     {
                         i = Inserted.IndexOf("+");
-                        tempstr1 = Inserted[i - 1];
-                        tempstr2 = Inserted[i + 1];
-                        temp = double.Parse(tempstr1) + double.Parse(tempstr2);
+                        temp = MathOps.Plus(i, Inserted);
                         ListMod(i, Inserted, temp);
                     }
                     else
                     {
                         i = Inserted.IndexOf("-");
-                        tempstr1 = Inserted[i - 1];
-                        tempstr2 = Inserted[i + 1];
-                        temp = double.Parse(tempstr1) - double.Parse(tempstr2);
+                        temp = MathOps.Minus(i, Inserted);
                         ListMod(i, Inserted, temp);
                     }
                 }
                 else if (Inserted.Contains("+"))
                 {
                     i = Inserted.IndexOf("+");
-                    tempstr1 = Inserted[i - 1];
-                    tempstr2 = Inserted[i + 1];
-                    temp = double.Parse(tempstr1) + double.Parse(tempstr2);
+                    temp = MathOps.Plus(i, Inserted);
                     ListMod(i, Inserted, temp);
                 }
                 else if (Inserted.Contains("-"))
                 {
                     i = Inserted.IndexOf("-");
-                    tempstr1 = Inserted[i - 1];
-                    tempstr2 = Inserted[i + 1];
-                    temp = double.Parse(tempstr1) - double.Parse(tempstr2);
+                    temp = MathOps.Minus(i, Inserted);
                     ListMod(i, Inserted, temp);
                 }
             }
             while (Inserted.Count > 1);
-            result = double.Parse(Inserted[0]);
-            return result;
+            return result = double.Parse(Inserted[0]);
         }
         static List<string> ListMod(int i, List<string> Inserted, double temp)
         {
@@ -221,5 +208,5 @@ namespace stringParse
             }
             return operate;
         }
-    }
+    }      
 }
